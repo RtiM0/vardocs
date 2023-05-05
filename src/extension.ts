@@ -15,12 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.languages.registerHoverProvider('*', {
 		provideHover(document, position) {
-			// Get current word/symbol under cursor
-			const wordRange = document.getWordRangeAtPosition(position);
-			const word = document.getText(wordRange);
-
-			// Show "Show Purpose" link in hover
-			const markupContent = new vscode.MarkdownString(`**${word}** [Show Purpose](command:vardocs.showPurpose)`);
+			const markupContent = new vscode.MarkdownString(`[Show Purpose](command:vardocs.showPurpose)`);
 			markupContent.isTrusted = true;
 			return new vscode.Hover(markupContent);
 		}
