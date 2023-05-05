@@ -14,6 +14,7 @@
   "categories": [
     "Other"
   ],
+  "icon": "icon.png",
   "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "contributes": {
@@ -33,6 +34,10 @@
         "Openai Model": {
           "type": "string",
           "default":"text-davinci-003"
+        },
+        "MaxTokens": {
+          "type": "number",
+          "default": 64
         }
       }
     }

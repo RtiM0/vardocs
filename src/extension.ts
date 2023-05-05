@@ -1,8 +1,22 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
 import { Configuration, OpenAIApi } from 'openai';
 
+const symbolsToFind = [vscode.SymbolKind.Function, vscode.SymbolKind.Method, vscode.SymbolKind.Constructor];
+
+function getDocSymbols(docSymbols: vscode.DocumentSymbol[], docSymbolsFunctionsMethods: vscode.DocumentSymbol[]) {
+	docSymbols.forEach((symbol) => {
+		if (symbolsToFind.includes(symbol.kind)) {
+			docSymbolsFunctionsMethods.push(symbol);
+		}
+		if (symbol.children.length) {
+			getDocSymbols(symbol.children, docSymbolsFunctionsMethods);
+		}
+	});
+}
+
 export function activate(context: vscode.ExtensionContext) {
-	const apiKey = vscode.workspace.getConfiguration().get('OpenAI API KEY') as string;
+	const apiKey = vscode.workspace.getConfiguration().get('Openai API KEY') as string;
 	if (!apiKey) {
 		vscode.window.showErrorMessage("Please set OPENAI API KEYS for VarDocs and reload window!");
 	}
@@ -28,16 +42,14 @@ export function activate(context: vscode.ExtensionContext) {
 			cancellable: false,
 		}, async (progress, token) => {
 			const editor = vscode.window.activeTextEditor;
-			const symbolsToFind = [vscode.SymbolKind.Function, vscode.SymbolKind.Method, vscode.SymbolKind.Constructor];
 
 			const docSymbols = await vscode.commands.executeCommand(
 				'vscode.executeDocumentSymbolProvider',
 				editor.document.uri
 			) as vscode.DocumentSymbol[];
 
-			const docSymbolsFunctionsMethods = docSymbols
-				? docSymbols.filter(symbol => symbolsToFind.includes(symbol.kind))
-				: undefined;
+			const docSymbolsFunctionsMethods = [];
+			getDocSymbols(docSymbols, docSymbolsFunctionsMethods);
 
 			const selection = editor.selection;
 			if (!selection && selection.isEmpty) {
@@ -52,8 +64,8 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage("Could not find selection");
 				return undefined;
 			};
-			let func = ""
-			for (const element of docSymbolsFunctionsMethods) {
+			let func = "";
+			for (const element of docSymbolsFunctionsMethods.reverse()) {
 				if (element.range.contains(vscode.window.activeTextEditor.selection.start)) {
 					const body = vscode.window.activeTextEditor.document.getText(element.range);
 					func += body;
@@ -63,14 +75,19 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage("Could not find function");
 				return undefined;
 			};
-			const completion = await openai.createCompletion({
-				model: vscode.workspace.getConfiguration().get('OpenAI Model') as string,
-				prompt: `FUNCTION:\n\n${func}\n\nExplain What is the purpose of the variable or line '${word}'?`,
-				max_tokens: 64,
-				top_p: 1,
-			})
-			const choice = completion.data.choices[0].text;
-			vscode.window.showInformationMessage(choice);
+			const prompt = `FUNCTION:\n\n${func}\n\nExplain What is the purpose of the variable or line '${word}'?`;
+			try {
+				const completion = await openai.createCompletion({
+					model: vscode.workspace.getConfiguration().get('Openai Model') as string,
+					prompt,
+					max_tokens: vscode.workspace.getConfiguration().get('MaxTokens'),
+					top_p: 1,
+				});
+				const choice = completion.data.choices[0].text;
+				vscode.window.showInformationMessage(choice);
+			} catch {
+				vscode.window.showErrorMessage("Check your OpenAI API KEY");
+			}
 		});
 
 	});

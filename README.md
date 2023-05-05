@@ -17,6 +17,7 @@ This extension contributes the following settings:
 
 - `vardocs.Openai API KEY`: Set your openai api key.
 - `vardocs.Openai Model`: Change the model.
+- `vardocs.MaxTokens`: Max tokens to use with model.
 
 ## Known Issues
 
