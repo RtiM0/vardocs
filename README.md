@@ -25,6 +25,11 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.9.1
+
+- Fixed: DocSymbols bug
+- Added: Configaturation for max tokens
+
 ### 0.9.0
 
 Initial release
