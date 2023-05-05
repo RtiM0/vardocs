@@ -2,9 +2,14 @@
   "name": "vardocs",
   "displayName": "VarDocs: Explain code through AI",
   "description": "Generate description and purpose of a variable inside a function's scope",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RtiM0/vardocs"
+  },
+  "publisher": "otatopotato",
   "version": "0.9.0",
   "engines": {
-    "vscode": "^1.68.0"
+    "vscode": "^1.78.0"
   },
   "categories": [
     "Other"

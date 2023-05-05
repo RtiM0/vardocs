@@ -1,4 +1,4 @@
-# vardocs README
+# VarDocs
 
 VarDocs is a Visual Studio Code extension that uses OpenAI API to explain code snippets or variables in the context of their function.
 
